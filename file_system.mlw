@@ -1,0 +1,96 @@
+module FileSystem
+
+use list.Append as A
+use list.List as L
+use list.Length as Le
+use set.Fset
+use map.Map
+
+(* Arbitrary type for a node of our tree *)
+type elt
+
+(* Verifies if two nodes are equal *)
+val equal (e1 e2 : elt) : bool
+  ensures { result <-> e1 = e2 }
+
+(* Indicates if two nodes make an edge in our tree *)
+predicate edge (x y : elt) (f : elt -> elt) =
+    f x = y
+
+(* Inductive way of verifying if there is a path between two nodes *)
+inductive path (f : elt -> elt) (x y : elt) (p : L.list elt) =
+  | path_nil   : forall x : elt, l : elt -> elt. path l x x L.Nil
+  | path_cons  : forall x y z : elt,
+                 l : (elt -> elt),
+                 p : L.list elt.
+                 edge x z l -> path l z y p ->
+                 path l x y (L.Cons x p)
+
+(* This lemma states that if there is a path from x to y
+   and if there is a path from y to z then there is a path
+   from x to z *)
+let rec lemma trans_path (x y z : elt) (f : elt -> elt) (p1 p2 : L.list elt)
+    variant  { Le.length p1 }
+    requires { path f x y p1 }
+    requires { path f y z p2 }
+    ensures  { path f x z (A.(++) p1 p2) }
+  = match p1 with
+    | L.Cons _ (L.Cons b _ as p') -> trans_path b y z f p' p2
+    | _                       -> ()
+    end
+    
+(* This lemma states that if there is an edge from x to y
+   then that is a path from x to y *)
+lemma path_edge : forall x y : elt, f : elt -> elt.
+    edge x y f -> path f x y (L.Cons x L.Nil)
+
+(* This lemma states that if there is a path from n to x
+   and there is an edge from x to y then there is a path from
+   n to y *)
+lemma path_edge_cons:
+    forall n x y : elt, f : elt -> elt, pth : L.list elt.
+    path f n x pth -> edge x y f ->
+    path f n y (A.(++) pth (L.Cons x L.Nil))
+
+(* Checks if y is reachable from x *)
+predicate reachable (f: elt -> elt) (x y : elt) =
+    exists p : L.list elt. path f x y p
+  
+constant n: elt
+  
+type state = {
+  mutable tree : elt -> elt;      (* mapping of the tree son -> parent *)
+  mutable root : elt;             (* root of the tree *)
+  mutable dom  : fset elt;        (* dominimium of the tree mapping *)
+} 
+  invariant { mem root dom }
+  invariant { tree root = root }
+  invariant { forall x. mem x dom -> 
+                mem (tree x) dom }
+  invariant { forall x. mem x dom /\ x <> root -> 
+                reachable tree x root }
+  by { tree = (fun _ -> n); root = n; dom = singleton n }
+           
+val add (n p : elt) (s : state) : unit
+  requires { not mem n s.dom }
+  requires { mem p s.dom }
+  writes   { s.tree }
+  ensures  { s.tree = set (old s.tree) n p }
+  ensures  { s.dom = add n (old s).dom }
+  
+val remove (n p : elt) (s : state) : unit
+  requires { mem n s.dom }
+  requires { edge n p s.tree }
+  requires { forall x. s.tree x <> n }
+  ensures  { s.dom = remove n (old s).dom }
+  
+val move (p c np : elt) (s : state) : unit
+  requires { mem p s.dom }
+  requires { mem np s.dom }
+  requires { edge c p s.tree }
+  requires { not (reachable s.tree np c) }
+  requires { p <> np } 
+  ensures  { s.tree = set (old s.tree) c np }
+
+
+end
