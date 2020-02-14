@@ -118,7 +118,6 @@ let ghost move (p c np : elt) (s : state) : unit
   requires { mem c s.dom }
   requires { edge c p s.tree }
   requires { not (reachable s.tree np c) }
-  requires { not (reachable s.tree p np) }
   requires { forall x. mem x s.dom ->
                reachable s.tree x s.root }
   requires { p <> np }
