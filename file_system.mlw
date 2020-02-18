@@ -38,7 +38,7 @@ let rec lemma trans_path (x y z : elt) (f : elt -> elt) (p1 p2 : L.list elt)
     | L.Cons _ (L.Cons b _ as p') -> trans_path b y z f p' p2
     | _                           -> ()
     end
-    
+
 (* This lemma states that if there is an edge from x to y
    then that is a path from x to y *)
 lemma path_edge : forall x y : elt, f : elt -> elt.
@@ -50,12 +50,12 @@ lemma path_edge : forall x y : elt, f : elt -> elt.
 lemma path_edge_cons:
     forall n x y : elt, f : elt -> elt, pth : L.list elt.
     path f n x pth -> edge x y f ->
-    path f n y (A.(++) pth (L.Cons x L.Nil))      
+    path f n y (A.(++) pth (L.Cons x L.Nil))
 
 (* Checks if y is reachable from x *)
 predicate reachable (f: elt -> elt) (x y : elt) =
     exists p : L.list elt. path f x y p
-    
+
 let rec lemma aux (n w p root: elt) (f: elt -> elt) (l: L.list elt)
   requires { path f w root l }
   requires { w <> n }
@@ -67,41 +67,41 @@ let rec lemma aux (n w p root: elt) (f: elt -> elt) (l: L.list elt)
   | L.Cons _ L.Nil             -> ()
   | L.Cons w (L.Cons z _ as l) -> aux n z p root f l
   end
-  
+
 constant n    : elt (* constant only used for the state witness *)
 constant null : elt (* null constant if necessary *)
-  
+
 type state = {
   mutable tree : elt -> elt;      (* mapping of the tree son -> parent *)
   mutable root : elt;             (* root of the tree *)
   mutable dom  : fset elt;        (* domain of the tree mapping function *)
-} 
+}
   invariant { mem root dom }
-  invariant { tree root = root } 
-  invariant { forall x. mem x dom -> 
+  invariant { tree root = root }
+  invariant { forall x. mem x dom ->
                 mem (tree x) dom }
-  invariant { forall x. mem x dom -> 
-                reachable tree x root }           
+  invariant { forall x. mem x dom ->
+                reachable tree x root }
   by { tree = (fun _ -> n); root = n; dom = singleton n }
-           
+
 let ghost add (n p : elt) (s : state) (ghost l: L.list elt) : unit
   requires { not mem n s.dom }
   requires { mem p s.dom }
   requires { p <> s.root /\ n <> s.root }
   requires { path s.tree p s.root l }
-  requires { forall x. mem x s.dom -> 
+  requires { forall x. mem x s.dom ->
                not (reachable s.tree x n)}
   writes   { s.tree , s.dom }
   ensures  { s.tree = set (old s.tree) n p }
   ensures  { edge n p s.tree }
   ensures  { s.dom = add n (old s).dom }
-= 
+=
   s.tree <- set s.tree n p;
   assert { edge n p s.tree };
-  assert { forall x. mem x s.dom -> 
+  assert { forall x. mem x s.dom ->
               reachable s.tree x s.root };
   s.dom  <- add n s.dom
-  
+
 let ghost remove (n p : elt) (s : state) : unit
   requires { mem n s.dom }
   requires { edge n p s.tree }
@@ -110,8 +110,8 @@ let ghost remove (n p : elt) (s : state) : unit
   writes   { s.dom }
   ensures  { s.dom = remove n (old s).dom }
 =
-  s.dom <- remove n s.dom 
-  
+  s.dom <- remove n s.dom
+
 let ghost move (p c np : elt) (s : state) : unit
   requires { mem p s.dom }
   requires { mem np s.dom }
@@ -123,10 +123,10 @@ let ghost move (p c np : elt) (s : state) : unit
   requires { not (reachable s.tree p c) }
   requires { p <> np }
   requires { c <> np /\ c <> p }
-  writes   { s.tree } 
+  writes   { s.tree }
   ensures  { edge c np s.tree }
   ensures  { s.tree = set (old s.tree) c np }
 =
   s.tree <- set s.tree c np;
-  
+
 end

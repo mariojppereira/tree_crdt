@@ -48,6 +48,9 @@
  </transf>
  </goal>
  <goal name="VC state" expl="VC for state" proved="true">
+ <proof prover="0" obsolete="true"><result status="timeout" time="1.00"/></proof>
+ <proof prover="1" obsolete="true"><result status="highfailure" time="0.00"/></proof>
+ <proof prover="2" obsolete="true"><result status="timeout" time="1.00"/></proof>
  <transf name="split_vc" proved="true" >
   <goal name="VC state.0" expl="type invariant" proved="true">
   <proof prover="2"><result status="valid" time="0.08"/></proof>
@@ -72,6 +75,9 @@
  </transf>
  </goal>
  <goal name="VC add" expl="VC for add" proved="true">
+ <proof prover="0" obsolete="true"><result status="timeout" time="1.00"/></proof>
+ <proof prover="1" obsolete="true"><result status="highfailure" time="0.00"/></proof>
+ <proof prover="2" obsolete="true"><result status="timeout" time="1.00"/></proof>
  <transf name="split_vc" proved="true" >
   <goal name="VC add.0" expl="assertion" proved="true">
   <proof prover="2"><result status="valid" time="0.07"/></proof>
@@ -189,7 +195,6 @@
  </transf>
  </goal>
  <goal name="VC remove" expl="VC for remove" proved="true">
- <proof prover="2" obsolete="true"><result status="valid" time="0.09"/></proof>
  <transf name="split_vc" proved="true" >
   <goal name="VC remove.0" expl="type invariant" proved="true">
   <proof prover="2"><result status="valid" time="0.09"/></proof>
@@ -209,6 +214,9 @@
  </transf>
  </goal>
  <goal name="VC move" expl="VC for move">
+ <proof prover="0" obsolete="true"><result status="timeout" time="1.00"/></proof>
+ <proof prover="1" obsolete="true"><result status="highfailure" time="0.00"/></proof>
+ <proof prover="2" obsolete="true"><result status="timeout" time="1.00"/></proof>
  <transf name="split_vc" >
   <goal name="VC move.0" expl="type invariant" proved="true">
   <proof prover="2"><result status="valid" time="0.08"/></proof>
@@ -222,66 +230,57 @@
   <goal name="VC move.3" expl="type invariant">
   <transf name="split_vc" >
    <goal name="VC move.3.0" expl="type invariant">
-   <transf name="unfold" arg1="reachable">
-    <goal name="VC move.3.0.0" expl="VC for move">
-    <transf name="assert" arg1="( forall x. mem x s1.dom -&gt; reachable s1.tree x s1.root )">
+   <transf name="case" arg1="(x = c)">
+    <goal name="VC move.3.0.0" expl="true case (type invariant)">
+    <proof prover="0"><result status="timeout" time="1.00"/></proof>
+    <proof prover="1"><result status="highfailure" time="0.00"/></proof>
+    <proof prover="2"><result status="timeout" time="1.00"/></proof>
+    <transf name="assert" arg1="(edge c np (set (tree s1) c np))">
      <goal name="VC move.3.0.0.0" expl="asserted formula" proved="true">
      <proof prover="2"><result status="valid" time="0.06"/></proof>
      </goal>
-     <goal name="VC move.3.0.0.1" expl="VC for move">
+     <goal name="VC move.3.0.0.1" expl="true case (type invariant)">
      <proof prover="0"><result status="timeout" time="1.00"/></proof>
      <proof prover="1"><result status="highfailure" time="0.00"/></proof>
      <proof prover="2"><result status="timeout" time="1.00"/></proof>
-     <transf name="instantiate" arg1="h" arg2="x">
+     <transf name="unfold" arg1="reachable">
       <goal name="VC move.3.0.0.1.0" expl="VC for move">
-      <transf name="destruct" arg1="Hinst">
-       <goal name="VC move.3.0.0.1.0.0" expl="destruct premise" proved="true">
-       <proof prover="2"><result status="valid" time="0.05"/></proof>
-       </goal>
-       <goal name="VC move.3.0.0.1.0.1" expl="VC for move">
+      <transf name="assert" arg1="(reachable (set (tree s1) c np) np (root s1))">
+       <goal name="VC move.3.0.0.1.0.0" expl="asserted formula">
        <proof prover="0"><result status="timeout" time="1.00"/></proof>
        <proof prover="1"><result status="highfailure" time="0.00"/></proof>
        <proof prover="2"><result status="timeout" time="1.00"/></proof>
-       <transf name="unfold" arg1="reachable" arg2="in" arg3="Hinst">
-        <goal name="VC move.3.0.0.1.0.1.0" expl="VC for move">
-        <transf name="introduce_exists" >
-         <goal name="VC move.3.0.0.1.0.1.0.0" expl="VC for move">
-         <transf name="instantiate" arg1="aux" arg2="c,x,np,(root s1),(tree s1),p">
-          <goal name="VC move.3.0.0.1.0.1.0.0.0" expl="VC for move">
-          <transf name="destruct" arg1="Hinst">
-           <goal name="VC move.3.0.0.1.0.1.0.0.0.0" expl="destruct premise" proved="true">
-           <proof prover="2"><result status="valid" time="0.04"/></proof>
-           </goal>
-           <goal name="VC move.3.0.0.1.0.1.0.0.0.1" expl="VC for move">
-           <proof prover="0"><result status="timeout" time="1.00"/></proof>
-           <proof prover="1"><result status="highfailure" time="0.00"/></proof>
-           <proof prover="2"><result status="timeout" time="1.00"/></proof>
-           <transf name="destruct" arg1="Hinst">
-            <goal name="VC move.3.0.0.1.0.1.0.0.0.1.0" expl="destruct premise">
-            <proof prover="0"><result status="timeout" time="1.00"/></proof>
-            <proof prover="1"><result status="highfailure" time="0.00"/></proof>
-            <proof prover="2"><result status="timeout" time="1.00"/></proof>
-            </goal>
-            <goal name="VC move.3.0.0.1.0.1.0.0.0.1.1" expl="VC for move">
-            <proof prover="0"><result status="timeout" time="1.00"/></proof>
-            <proof prover="1"><result status="highfailure" time="0.00"/></proof>
-            <proof prover="2"><result status="timeout" time="1.00"/></proof>
-            </goal>
-           </transf>
-           </goal>
-          </transf>
-          </goal>
-         </transf>
-         </goal>
-        </transf>
+       <transf name="assert" arg1="(reachable (tree s1) np (root s1))">
+        <goal name="VC move.3.0.0.1.0.0.0" expl="asserted formula" proved="true">
+        <proof prover="2"><result status="valid" time="0.06"/></proof>
+        </goal>
+        <goal name="VC move.3.0.0.1.0.0.1" expl="asserted formula">
+        <proof prover="0"><result status="timeout" time="1.00"/></proof>
+        <proof prover="1"><result status="highfailure" time="0.00"/></proof>
+        <proof prover="2"><result status="timeout" time="1.00"/></proof>
         </goal>
        </transf>
+       </goal>
+       <goal name="VC move.3.0.0.1.0.1" expl="VC for move" proved="true">
+       <proof prover="2"><result status="valid" time="0.11"/></proof>
        </goal>
       </transf>
       </goal>
      </transf>
      </goal>
     </transf>
+    </goal>
+    <goal name="VC move.3.0.1" expl="false case (type invariant)">
+    <proof prover="0"><result status="timeout" time="1.00"/></proof>
+    <proof prover="1"><result status="highfailure" time="0.00"/></proof>
+    <proof prover="2"><result status="timeout" time="1.00"/></proof>
+    </goal>
+   </transf>
+   <transf name="unfold" arg1="reachable">
+    <goal name="VC move.3.0.0" expl="VC for move">
+    <proof prover="0"><result status="timeout" time="1.00"/></proof>
+    <proof prover="1"><result status="highfailure" time="0.00"/></proof>
+    <proof prover="2"><result status="timeout" time="1.00"/></proof>
     </goal>
    </transf>
    </goal>
