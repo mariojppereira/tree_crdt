@@ -5,7 +5,7 @@
 <prover id="0" name="Z3" version="4.8.4" timelimit="1" steplimit="0" memlimit="1000"/>
 <prover id="1" name="Alt-Ergo" version="2.2.0" timelimit="1" steplimit="0" memlimit="1000"/>
 <prover id="2" name="CVC4" version="1.6" timelimit="1" steplimit="0" memlimit="1000"/>
-<prover id="3" name="Z3" version="4.8.6" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="3" name="Z3" version="4.8.6" timelimit="5" steplimit="0" memlimit="1000"/>
 <prover id="4" name="CVC4" version="1.7" timelimit="1" steplimit="0" memlimit="1000"/>
 <prover id="5" name="Alt-Ergo" version="2.3.0" timelimit="1" steplimit="0" memlimit="1000"/>
 <file format="whyml">
@@ -354,8 +354,6 @@
          <goal name="move&#39;vc.3.0.0.1.1.0.1.0" expl="false case (true case)" proved="true">
          <transf name="introduce_exists" proved="true" >
           <goal name="move&#39;vc.3.0.0.1.1.0.1.0.0" expl="false case (true case)" proved="true">
-          <proof prover="3" timelimit="5"><result status="timeout" time="5.00"/></proof>
-          <proof prover="4" timelimit="5"><result status="timeout" time="5.00"/></proof>
           <transf name="exists" proved="true" arg1="p">
            <goal name="move&#39;vc.3.0.0.1.1.0.1.0.0.0" proved="true">
            <proof prover="5" timelimit="5"><result status="valid" time="0.01" steps="34"/></proof>
@@ -369,9 +367,6 @@
        </transf>
        </goal>
        <goal name="move&#39;vc.3.0.0.1.1.1" expl="false case">
-       <proof prover="3"><result status="timeout" time="1.00"/></proof>
-       <proof prover="4"><result status="timeout" time="1.00"/></proof>
-       <proof prover="5"><result status="timeout" time="1.00"/></proof>
        <transf name="case" arg1="(reachable (tree s1) x p)">
         <goal name="move&#39;vc.3.0.0.1.1.1.0" expl="false case (true case)">
         <transf name="case" arg1="(not (reachable (tree s1) x c))">
@@ -406,80 +401,16 @@
          </transf>
          </goal>
          <goal name="move&#39;vc.3.0.0.1.1.1.0.1" expl="false case (true case)">
-         <proof prover="3"><result status="timeout" time="1.00"/></proof>
+         <proof prover="3" timelimit="1"><result status="timeout" time="1.00"/></proof>
          <proof prover="4"><result status="timeout" time="1.00"/></proof>
          <proof prover="5"><result status="timeout" time="1.00"/></proof>
          </goal>
         </transf>
-        <transf name="unfold" arg1="reachable" arg2="in" arg3="h">
-         <goal name="move&#39;vc.3.0.0.1.1.1.0.0" expl="false case (true case)">
-         <transf name="introduce_exists" >
-          <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0" expl="false case (true case)">
-          <transf name="assert" arg1="(reachable (tree s1) p1 (root s1))">
-           <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.0" expl="asserted formula" proved="true">
-           <proof prover="5"><result status="valid" time="0.01" steps="34"/></proof>
-           </goal>
-           <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1" expl="false case (true case)">
-           <transf name="unfold" arg1="reachable" arg2="in" arg3="h">
-            <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1.0" expl="false case (true case)">
-            <transf name="introduce_exists" >
-             <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1.0.0" expl="false case (true case)">
-             <transf name="exists" arg1="(p1 ++ p)">
-              <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1.0.0.0">
-              <transf name="instantiate" arg1="aux" arg2="c">
-               <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1.0.0.0.0">
-               <transf name="instantiate" arg1="Hinst" arg2="x,np,p2">
-                <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1.0.0.0.0.0">
-                <transf name="instantiate" arg1="Hinst" arg2="(tree s1)">
-                 <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1.0.0.0.0.0.0">
-                 <transf name="instantiate" arg1="Hinst" arg2="p1">
-                  <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1.0.0.0.0.0.0.0">
-                  <transf name="destruct" arg1="Hinst">
-                   <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1.0.0.0.0.0.0.0.0" expl="destruct premise" proved="true">
-                   <proof prover="5"><result status="valid" time="0.01" steps="34"/></proof>
-                   </goal>
-                   <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1.0.0.0.0.0.0.0.1">
-                   <transf name="destruct" arg1="Hinst">
-                    <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1.0.0.0.0.0.0.0.1.0" expl="destruct premise" proved="true">
-                    <proof prover="5"><result status="valid" time="0.01" steps="34"/></proof>
-                    </goal>
-                    <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1.0.0.0.0.0.0.0.1.1">
-                    <transf name="destruct" arg1="Hinst">
-                     <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1.0.0.0.0.0.0.0.1.1.0" expl="destruct premise">
-                     <proof prover="3"><result status="highfailure" time="0.75"/></proof>
-                     <proof prover="4"><result status="timeout" time="1.00"/></proof>
-                     <proof prover="5"><result status="timeout" time="1.00"/></proof>
-                     </goal>
-                     <goal name="move&#39;vc.3.0.0.1.1.1.0.0.0.1.0.0.0.0.0.0.0.1.1.1" proved="true">
-                     <proof prover="5"><result status="valid" time="0.03" steps="99"/></proof>
-                     </goal>
-                    </transf>
-                    </goal>
-                   </transf>
-                   </goal>
-                  </transf>
-                  </goal>
-                 </transf>
-                 </goal>
-                </transf>
-                </goal>
-               </transf>
-               </goal>
-              </transf>
-              </goal>
-             </transf>
-             </goal>
-            </transf>
-            </goal>
-           </transf>
-           </goal>
-          </transf>
-          </goal>
-         </transf>
-         </goal>
-        </transf>
         </goal>
         <goal name="move&#39;vc.3.0.0.1.1.1.1" expl="false case">
+        <proof prover="3"><result status="timeout" time="5.00"/></proof>
+        <proof prover="4" timelimit="5"><result status="timeout" time="5.00"/></proof>
+        <proof prover="5" timelimit="5"><result status="timeout" time="5.00"/></proof>
         </goal>
        </transf>
        </goal>
