@@ -50,7 +50,7 @@ lemma path_edge : forall x y : elt, f : elt -> elt.
 lemma path_edge_cons:
     forall n x y : elt, f : elt -> elt, pth : L.list elt.
     path f n x pth -> edge x y f ->
-    path f n y (A.(++) pth (L.Cons x L.Nil))
+    path f n y (A.(++) pth (L.Cons x L.Nil))      
 
 (* Checks if y is reachable from x *)
 predicate reachable (f: elt -> elt) (x y : elt) =
@@ -118,9 +118,9 @@ let ghost move (p c np : elt) (s : state) : unit
   requires { mem c s.dom }
   requires { edge c p s.tree }
   requires { not (reachable s.tree np c) }
-  requires { not (reachable s.tree p np) }
   requires { forall x. mem x s.dom ->
                reachable s.tree x s.root }
+  requires { not (reachable s.tree p c) }
   requires { p <> np }
   requires { c <> np /\ c <> p }
   writes   { s.tree } 
@@ -128,6 +128,5 @@ let ghost move (p c np : elt) (s : state) : unit
   ensures  { s.tree = set (old s.tree) c np }
 =
   s.tree <- set s.tree c np;
-  assert { not (reachable s.tree c p) }
   
 end
