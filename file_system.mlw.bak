@@ -55,6 +55,11 @@ lemma path_edge_cons:
 (* Checks if y is reachable from x *)
 predicate reachable (f: elt -> elt) (x y : elt) =
     exists p : L.list elt. path f x y p
+    
+lemma parent_move:
+   forall x c np : elt, f : elt -> elt, pth : L.list elt.
+    x <> np /\ x <> c /\ c <> np  ->
+    path f x c pth -> path (set f c np) x c pth
 
 let rec lemma aux (n w p root: elt) (f: elt -> elt) (l: L.list elt)
   requires { path f w root l }
@@ -126,7 +131,6 @@ let ghost move (p c np : elt) (s : state) : unit
   writes   { s.tree }
   ensures  { edge c np s.tree }
   ensures  { s.tree = set (old s.tree) c np }
-  ensures  { forall y. reachable (old s).tree y c -> (old s).tree y = s.tree y }
 =
   s.tree <- set s.tree c np;
 

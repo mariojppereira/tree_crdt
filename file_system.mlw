@@ -55,6 +55,11 @@ lemma path_edge_cons:
 (* Checks if y is reachable from x *)
 predicate reachable (f: elt -> elt) (x y : elt) =
     exists p : L.list elt. path f x y p
+    
+lemma parent_move:
+   forall x c np : elt, f : elt -> elt, pth : L.list elt.
+    x <> np /\ x <> c /\ c <> np /\ not (exists l. path f c np l) ->
+    path f x c pth -> path (set f c np) x c pth
 
 let rec lemma aux (n w p root: elt) (f: elt -> elt) (l: L.list elt)
   requires { path f w root l }
