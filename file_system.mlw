@@ -3,6 +3,7 @@ module FileSystem
 use list.Append as A
 use list.List as L
 use list.Length as Le
+use list.Distinct as Ld
 use set.Fset
 use map.Map
 
@@ -23,7 +24,7 @@ inductive path (f : elt -> elt) (x y : elt) (p : L.list elt) =
   | path_cons  : forall x y z : elt,
                  l : (elt -> elt),
                  p : L.list elt.
-                 edge x z l -> path l z y p ->
+                 edge x z l -> path l z y p -> Ld.distinct (L.Cons x p) ->
                  path l x y (L.Cons x p)
 
 (* This lemma states that if there is a path from x to y
@@ -55,11 +56,6 @@ lemma path_edge_cons:
 (* Checks if y is reachable from x *)
 predicate reachable (f: elt -> elt) (x y : elt) =
     exists p : L.list elt. path f x y p
-    
-lemma parent_move:
-   forall x c np : elt, f : elt -> elt, pth : L.list elt.
-    x <> np /\ x <> c /\ c <> np /\ not (exists l. path f c np l) ->
-    path f x c pth -> path (set f c np) x c pth
 
 let rec lemma aux (n w p root: elt) (f: elt -> elt) (l: L.list elt)
   requires { path f w root l }
@@ -71,7 +67,7 @@ let rec lemma aux (n w p root: elt) (f: elt -> elt) (l: L.list elt)
   | L.Nil                      -> ()
   | L.Cons _ L.Nil             -> ()
   | L.Cons w (L.Cons z _ as l) -> aux n z p root f l
-  end
+  end 
 
 constant n    : elt (* constant only used for the state witness *)
 constant null : elt (* null constant if necessary *)
@@ -88,6 +84,38 @@ type state = {
   invariant { forall x. mem x dom ->
                 reachable tree x root }
   by { tree = (fun _ -> n); root = n; dom = singleton n }
+  
+let rec lemma test (x y : elt) (f : elt -> elt) (pth : L.list elt)
+    requires { pth <> L.Nil }
+    requires { path f x y pth }
+    variant  { Le.length pth }
+    ensures  { x <> y }
+=
+  match pth with
+  | L.Nil -> absurd
+  | L.Cons x1 L.Nil -> ()
+  | L.Cons x1 (L.Cons y1 tl) ->
+      match tl with
+      | L.Nil -> ()
+      | _ -> test y1 y f (L.Cons y1 tl)
+      end
+  end  
+  
+let rec lemma parent_move (x c np : elt) (f : elt -> elt) (pth : L.list elt)
+  requires { x <> np }
+  requires { c <> np }
+  requires { not (reachable f np c) }
+  requires { path f x c pth }
+  variant  { Le.length pth }
+  ensures  { path (set f c np) x c pth }
+= match pth with
+  | L.Nil -> assert { x = c }
+  | L.Cons y L.Nil -> assert { y = x }; if y = c then absurd else ()
+  | L.Cons x2 (L.Cons y tl) ->
+      assert { x2 = x };
+      if x2 = c then absurd;
+      parent_move y c np f (L.Cons y tl);
+  end
 
 let ghost add (n p : elt) (s : state) (ghost l: L.list elt) : unit
   requires { not mem n s.dom }
@@ -123,9 +151,9 @@ let ghost move (p c np : elt) (s : state) : unit
   requires { mem c s.dom }
   requires { edge c p s.tree }
   requires { not (reachable s.tree np c) }
-  requires { forall x. mem x s.dom ->
-               reachable s.tree x s.root }
   requires { not (reachable s.tree p c) }
+  requires { forall x. reachable s.tree x c ->
+              not (reachable s.tree np x) }
   requires { p <> np }
   requires { c <> np /\ c <> p }
   writes   { s.tree }
