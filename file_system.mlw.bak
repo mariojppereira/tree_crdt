@@ -4,6 +4,7 @@ use list.Append as A
 use list.List as L
 use list.Length as Le
 use list.Distinct as Ld
+use list.Mem as Lm
 use set.Fset
 use map.Map
 
@@ -13,6 +14,9 @@ type elt
 (* Verifies if two nodes are equal *)
 val equal (e1 e2 : elt) : bool
   ensures { result <-> e1 = e2 }
+  
+val list_mem (x : elt) (l: L.list elt) : bool
+  ensures { Lm.mem x l }
 
 (* Indicates if two nodes make an edge in our tree *)
 predicate edge (x y : elt) (f : elt -> elt) =
@@ -34,6 +38,7 @@ let rec lemma trans_path (x y z : elt) (f : elt -> elt) (p1 p2 : L.list elt)
     variant  { Le.length p1 }
     requires { path f x y p1 }
     requires { path f y z p2 }
+    requires { Ld.distinct (A.(++) p1 p2) }
     ensures  { path f x z (A.(++) p1 p2) }
   = match p1 with
     | L.Cons _ (L.Cons b _ as p') -> trans_path b y z f p' p2
@@ -50,25 +55,10 @@ lemma path_edge : forall x y : elt, f : elt -> elt.
    n to y *)
 lemma path_edge_cons:
     forall n x y : elt, f : elt -> elt, pth : L.list elt.
+    Ld.distinct (L.Cons x pth) -> 
     path f n x pth -> edge x y f ->
-    path f n y (A.(++) pth (L.Cons x L.Nil))
-
-(* Checks if y is reachable from x *)
-predicate reachable (f: elt -> elt) (x y : elt) =
-    exists p : L.list elt. path f x y p
-
-(*let rec lemma aux (n w p root: elt) (f: elt -> elt) (l: L.list elt)
-  requires { path f w root l }
-  requires { w <> n }
-  requires { not (reachable f w n) }
-  requires { n <> p }
-  ensures  { path (set f n p) w root l }
-= match l with
-  | L.Nil                      -> ()
-  | L.Cons _ L.Nil             -> ()
-  | L.Cons w (L.Cons z _ as l) -> aux n z p root f l
-  end *)
-
+    path f n y (A.(++) pth (L.Cons x L.Nil)) 
+    
 constant n    : elt (* constant only used for the state witness *)
 constant null : elt (* null constant if necessary *)
 
@@ -85,14 +75,36 @@ type state = {
                 reachable tree x root }
   by { tree = (fun _ -> n); root = n; dom = singleton n }
   
+(* Checks if y is reachable from x *)
+predicate reachable (f: elt -> elt) (x y : elt) =
+    exists p : L.list elt. Ld.distinct p /\ 
+                           path f x y p
+  
+let rec lemma aux (n w p : elt) (s: state) (l: L.list elt)
+  requires { path s.tree w s.root l }
+  requires { not (Lm.mem n l) }
+  requires { Ld.distinct (L.Cons s.root l) }
+  requires { mem w s.dom }
+  requires { mem p s.dom }
+  requires { not (mem n s.dom) }
+  requires { w <> n }
+  requires { n <> p }
+  ensures  { path (set s.tree n p) w s.root l }
+= match l with
+  | L.Nil                       -> ()
+  | L.Cons _ L.Nil              -> ()
+  | L.Cons w1 (L.Cons z _ as l) -> aux n z p s l
+  end 
+  
 let rec lemma test (x y : elt) (f : elt -> elt) (pth : L.list elt)
-    requires { pth <> L.Nil }
-    requires { path f x y pth }
-    variant  { Le.length pth }
-    ensures  { x <> y }
+  requires { pth <> L.Nil }
+  requires { path f x y pth }
+  requires { Ld.distinct (L.Cons y pth) }
+  variant  { Le.length pth }
+  ensures  { x <> y }
 =
   match pth with
-  | L.Nil -> absurd
+  | L.Nil -> ()
   | L.Cons x1 L.Nil -> ()
   | L.Cons x1 (L.Cons y1 tl) ->
       match tl with
@@ -106,6 +118,7 @@ let rec lemma parent_move (x c np : elt) (f : elt -> elt) (pth : L.list elt)
   requires { c <> np }
   requires { not (reachable f np c) }
   requires { path f x c pth }
+  requires { Ld.distinct (L.Cons c pth) }
   variant  { Le.length pth }
   ensures  { path (set f c np) x c pth }
 = match pth with
@@ -117,11 +130,10 @@ let rec lemma parent_move (x c np : elt) (f : elt -> elt) (pth : L.list elt)
       parent_move y c np f (L.Cons y tl);
   end
 
-let ghost add (n p : elt) (s : state) (ghost l: L.list elt) : unit
+let ghost add (n p : elt) (s : state) : unit
   requires { not mem n s.dom }
   requires { mem p s.dom }
   requires { p <> s.root /\ n <> s.root }
-  requires { path s.tree p s.root l }
   requires { forall x. mem x s.dom ->
                not (reachable s.tree x n)}
   writes   { s.tree , s.dom }
@@ -130,9 +142,6 @@ let ghost add (n p : elt) (s : state) (ghost l: L.list elt) : unit
   ensures  { s.dom = add n (old s).dom }
 =
   s.tree <- set s.tree n p;
-  assert { edge n p s.tree };
-  assert { forall x. mem x s.dom ->
-              reachable s.tree x s.root };
   s.dom  <- add n s.dom
 
 let ghost remove (n p : elt) (s : state) : unit
