@@ -7,6 +7,7 @@ use list.Distinct as Ld
 use list.Mem as Lm
 use set.Fset
 use map.Map
+use seq.Seq
 
 (* Arbitrary type for a node of our tree *)
 type elt
@@ -57,7 +58,12 @@ lemma path_edge_cons:
     forall n x y : elt, f : elt -> elt, pth : L.list elt.
     Ld.distinct (L.Cons x pth) -> 
     path f n x pth -> edge x y f ->
-    path f n y (A.(++) pth (L.Cons x L.Nil)) 
+    path f n y (A.(++) pth (L.Cons x L.Nil))
+    
+(* Checks if y is reachable from x *)
+predicate reachable (f: elt -> elt) (x y : elt) =
+    exists p : L.list elt. Ld.distinct p /\ 
+                           path f x y p
     
 constant n    : elt (* constant only used for the state witness *)
 constant null : elt (* null constant if necessary *)
@@ -75,15 +81,9 @@ type state = {
                 reachable tree x root }
   by { tree = (fun _ -> n); root = n; dom = singleton n }
   
-(* Checks if y is reachable from x *)
-predicate reachable (f: elt -> elt) (x y : elt) =
-    exists p : L.list elt. Ld.distinct p /\ 
-                           path f x y p
-  
 let rec lemma aux (n w p : elt) (s: state) (l: L.list elt)
   requires { path s.tree w s.root l }
   requires { not (Lm.mem n l) }
-  requires { Ld.distinct (L.Cons s.root l) }
   requires { mem w s.dom }
   requires { mem p s.dom }
   requires { not (mem n s.dom) }
