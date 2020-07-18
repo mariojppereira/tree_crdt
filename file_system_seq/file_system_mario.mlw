@@ -1,43 +1,63 @@
 module FileSystem
 
-(* use list.Append as A *)
-(* use list.List as L *)
-(* use list.Length as Le *)
-(* use list.Distinct as Ld *)
-(* use list.Mem as Lm *)
-use set.Fset
-use map.Map
-use int.Int
-use seq.Seq, seq.Mem, seq.Distinct
+  (* use list.Append as A *)
+  (* use list.List as L *)
+  (* use list.Length as Le *)
+  (* use list.Distinct as Ld *)
+  (* use list.Mem as Lm *)
+  use int.Int
+  use map.Map
+  use import set.Fset as F
+  use seq.Seq, seq.Mem, seq.Distinct
 
-(* Arbitrary type for a node of our tree *)
-type elt
+  (* Arbitrary type for a node of our tree *)
+  type elt
 
-(* Verifies if two nodes are equal *)
-val equal (e1 e2 : elt) : bool
-  ensures { result <-> e1 = e2 }
+  (* Verifies if two nodes are equal *)
+  val equal (e1 e2 : elt) : bool
+    ensures { result <-> e1 = e2 }
 
-val list_mem (x : elt) (l: seq elt) : bool
-  ensures { mem x l }
-
-(* Indicates if two nodes make an edge in our tree *)
-predicate edge (x y : elt) (f : elt -> elt) =
+  (* Indicates if two nodes make an edge in our tree *)
+  predicate edge (x y : elt) (f : elt -> elt) =
     f x = y
 
-predicate path (f: elt -> elt) (x y: elt) (p: seq elt)
-= let n = length p in
-  n = 0 /\ x = y
-\/
-  n > 0 /\
-  p[0] = x /\
-  (forall i. 0 <= i < n - 1 -> edge p[i] p[i + 1] f) /\
-  edge p[n - 1] y f
+  predicate path (f: elt -> elt) (x y: elt) (p: seq elt) =
+    let n = length p in
+    n = 0 /\ x = y
+  \/
+    n > 0 /\
+    p[0] = x /\
+    distinct p /\
+    (forall i. 0 <= i < n - 1 -> edge p[i] p[i + 1] f) /\
+    edge p[n - 1] y f
 
-(* This lemma states that if there is a path from x to y
-   and if there is a path from y to z then there is a path
-   from x to z *)
-lemma trans_path : forall x y z : elt, f : elt -> elt, p1 p2 : seq elt.
-  path f x y p1 -> path f y z p2 -> distinct (p1 ++ p2) ->
-  path f x z (p1 ++ p2)
+  (* This lemma states that if there is a path from x to y
+     and if there is a path from y to z then there is a path
+     from x to z *)
+  lemma trans_path : forall x y z : elt, f : elt -> elt, p1 p2 : seq elt.
+    path f x y p1 -> path f y z p2 -> distinct (p1 ++ p2) ->
+    path f x z (p1 ++ p2)
+
+  lemma path_edge: forall x y : elt, f : elt -> elt.
+    edge x y f -> path f x y (cons x empty)
+
+  lemma path_edge_cons: forall n x y : elt, f : elt -> elt, pth : seq elt.
+    distinct (pth ++ cons x empty) -> path f n x pth -> edge x y f ->
+    path f n y (pth ++ cons x empty)
+
+  predicate reachable (f: elt -> elt) (x y: elt) =
+    exists p. distinct p /\ path f x y p
+
+  constant n: elt (* constant only used for the state witness *)
+
+  type state = {
+    mutable tree : elt -> elt;    (* mapping of the tree son -> parent *)
+    mutable root : elt;           (* root of the tree *)
+    mutable dom  : fset elt;      (* domain of the tree mapping function *)
+  } invariant { F.mem root dom }
+    invariant { tree root = root }
+    invariant { forall x. F.mem x dom -> F.mem (tree x) dom }
+    invariant { forall x. F.mem x dom -> reachable tree x root }
+    by { tree = (fun _ -> n); root = n; dom = F.singleton n }
 
 end

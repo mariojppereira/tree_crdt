@@ -3,13 +3,45 @@
 "http://why3.lri.fr/why3session.dtd">
 <why3session shape_version="6">
 <prover id="0" name="Alt-Ergo" version="2.3.1" timelimit="1" steplimit="0" memlimit="1000"/>
-<prover id="1" name="Z3" version="4.8.6" timelimit="5" steplimit="0" memlimit="1000"/>
+<prover id="2" name="CVC4" version="1.7" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="3" name="Eprover" version="2.0" timelimit="5" steplimit="0" memlimit="1000"/>
+<prover id="4" name="Alt-Ergo" version="2.3.0" timelimit="5" steplimit="0" memlimit="1000"/>
 <file format="whyml" proved="true">
 <path name=".."/><path name="file_system_mario.mlw"/>
 <theory name="FileSystem" proved="true">
  <goal name="trans_path" proved="true">
- <proof prover="0"><result status="valid" time="0.14" steps="653"/></proof>
- <proof prover="1"><result status="valid" time="0.22"/></proof>
+ <proof prover="0"><result status="valid" time="0.14" steps="916"/></proof>
+ </goal>
+ <goal name="path_edge" proved="true">
+ <proof prover="2"><result status="valid" time="0.08"/></proof>
+ </goal>
+ <goal name="path_edge_cons" proved="true">
+ <proof prover="2"><result status="valid" time="0.08"/></proof>
+ </goal>
+ <goal name="state&#39;vc" expl="VC for state" proved="true">
+ <transf name="split_vc" proved="true" >
+  <goal name="state&#39;vc.0" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.08"/></proof>
+  </goal>
+  <goal name="state&#39;vc.1" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.07"/></proof>
+  </goal>
+  <goal name="state&#39;vc.2" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.10"/></proof>
+  </goal>
+  <goal name="state&#39;vc.3" expl="type invariant" proved="true">
+  <transf name="unfold" proved="true" arg1="reachable">
+   <goal name="state&#39;vc.3.0" expl="VC for state" proved="true">
+   <proof prover="3"><result status="valid" time="0.06"/></proof>
+   <transf name="exists" proved="true" arg1="(empty: seq elt)">
+    <goal name="state&#39;vc.3.0.0" proved="true">
+    <proof prover="4"><result status="valid" time="0.01" steps="22"/></proof>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
  </goal>
 </theory>
 </file>
