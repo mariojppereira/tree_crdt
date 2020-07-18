@@ -6,7 +6,7 @@ module FileSystem
   (* use list.Distinct as Ld *)
   (* use list.Mem as Lm *)
   use int.Int
-  use map.Map
+  use import map.Map as M
   use import set.Fset as F
   use seq.Seq, seq.Mem, seq.Distinct
 
@@ -19,7 +19,7 @@ module FileSystem
 
   (* Indicates if two nodes make an edge in our tree *)
   predicate edge (x y : elt) (f : elt -> elt) =
-    f x = y
+    x <> y /\ f x = y
 
   predicate path (f: elt -> elt) (x y: elt) (p: seq elt) =
     let n = length p in
@@ -27,26 +27,42 @@ module FileSystem
   \/
     n > 0 /\
     p[0] = x /\
+    edge p[n - 1] y f /\
     distinct p /\
     (forall i. 0 <= i < n - 1 -> edge p[i] p[i + 1] f) /\
-    edge p[n - 1] y f
+    (forall i. 0 <= i < n     -> p[i] <> y)
 
-  (* This lemma states that if there is a path from x to y
-     and if there is a path from y to z then there is a path
-     from x to z *)
-  lemma trans_path : forall x y z : elt, f : elt -> elt, p1 p2 : seq elt.
-    path f x y p1 -> path f y z p2 -> distinct (p1 ++ p2) ->
-    path f x z (p1 ++ p2)
+  predicate reachable (f: elt -> elt) (x y: elt) =
+    exists p. path f x y p
+
+  predicate disjoint_seq (s1 s2: seq 'a) =
+    forall i j. 0 <= i < length s1 -> 0 <= j < length s2 -> s1[i] <> s2[j]
+
+  (* This lemma states that if there is a path from [from] to [middle]
+     and if there is a path from [middle] to [until] then there is a path
+     from [from] to [until] *)
+  lemma trans_path: forall from middle until f pth1 pth2.
+    path f from middle pth1 -> path f middle until pth2 ->
+    disjoint_seq pth1 pth2 -> from <> until ->
+    (forall j. 0 <= j < length pth1 -> pth1[j] <> until) ->
+    path f from until (pth1 ++ pth2)
 
   lemma path_edge: forall x y : elt, f : elt -> elt.
     edge x y f -> path f x y (cons x empty)
 
-  lemma path_edge_cons: forall n x y : elt, f : elt -> elt, pth : seq elt.
-    distinct (pth ++ cons x empty) -> path f n x pth -> edge x y f ->
-    path f n y (pth ++ cons x empty)
+  lemma path_edge_snoc: forall n x y : elt, f : elt -> elt, pth : seq elt.
+    n <> y -> not (mem y pth) -> (* FIXME: try to relax such property *)
+    distinct (snoc pth x) -> path f n x pth -> edge x y f ->
+    path f n y (snoc pth x)
 
-  predicate reachable (f: elt -> elt) (x y: elt) =
-    exists p. distinct p /\ path f x y p
+  (* TO BE PROVED *)
+  lemma unique_path_ext: forall x y: elt, f: elt -> elt, pth1 pth2: seq elt.
+    path f x y pth1 -> path f x y pth2 ->
+    pth1 == pth2
+
+  lemma unique_path: forall x y: elt, f: elt -> elt, pth1 pth2: seq elt.
+    path f x y pth1 -> path f x y pth2 ->
+    pth1 = pth2
 
   constant n: elt (* constant only used for the state witness *)
 
@@ -57,7 +73,33 @@ module FileSystem
   } invariant { F.mem root dom }
     invariant { tree root = root }
     invariant { forall x. F.mem x dom -> F.mem (tree x) dom }
-    invariant { forall x. F.mem x dom -> reachable tree x root }
+    invariant { forall x. F.mem x dom <-> reachable tree x root }
+    (* invariant { forall x y. F.mem x dom -> F.mem y dom ->  *)
     by { tree = (fun _ -> n); root = n; dom = F.singleton n }
+
+  lemma new_element: forall n w p: elt, s: state, l: seq elt.
+    path s.tree w s.root l -> not (mem n l) ->
+    F.mem w s.dom -> F.mem p s.dom -> not (F.mem n s.dom) ->
+    w <> n -> n <> p ->
+    path (M.set s.tree n p) w s.root l
+
+  (* lemma not_in_path: forall n: elt, state: state. *)
+  (*   not (F.mem p s.dom) -> *)
+  (*   forall x w: elt, p: seq elt. *)
+  (*     F.mem x s.dom -> F.mem x s.dom -> path s.tree x w p -> *)
+  (*     not (n *)
+
+  let ghost add (n p : elt) (s : state) : unit
+    requires { not F.mem n s.dom }
+    requires { F.mem p s.dom }
+    requires { p <> s.root /\ n <> s.root }
+    requires { forall x. F.mem x s.dom -> not (reachable s.tree x n)}
+    requires { forall x. F.mem x s.dom -> reachable s.tree x s.root ->
+               exists p. path s.tree x s.root p /\ not (mem n p) }
+    ensures  { s.tree = M.set (old s.tree) n p }
+    ensures  { edge n p s.tree }
+    ensures  { s.dom = F.add n (old s).dom }
+  = s.tree <- M.set s.tree n p;
+    s.dom  <- F.add n s.dom
 
 end

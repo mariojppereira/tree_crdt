@@ -3,20 +3,165 @@
 "http://why3.lri.fr/why3session.dtd">
 <why3session shape_version="6">
 <prover id="0" name="Alt-Ergo" version="2.3.1" timelimit="1" steplimit="0" memlimit="1000"/>
-<prover id="1" name="Z3" version="4.8.6" timelimit="5" steplimit="0" memlimit="1000"/>
+<prover id="1" name="Z3" version="4.8.6" timelimit="1" steplimit="0" memlimit="1000"/>
 <prover id="2" name="CVC4" version="1.7" timelimit="1" steplimit="0" memlimit="1000"/>
-<file format="whyml" proved="true">
+<file format="whyml">
 <path name=".."/><path name="file_system_mario.mlw"/>
-<theory name="FileSystem" proved="true">
+<theory name="FileSystem">
  <goal name="trans_path" proved="true">
- <proof prover="0"><result status="valid" time="0.14" steps="877"/></proof>
- <proof prover="1"><result status="valid" time="0.22"/></proof>
+ <proof prover="0"><result status="valid" time="1.33" steps="3391"/></proof>
  </goal>
  <goal name="path_edge" proved="true">
  <proof prover="2"><result status="valid" time="0.08"/></proof>
  </goal>
- <goal name="path_edge_cons" proved="true">
- <proof prover="2"><result status="valid" time="0.08"/></proof>
+ <goal name="path_edge_snoc" proved="true">
+ <proof prover="2"><result status="valid" time="0.14"/></proof>
+ </goal>
+ <goal name="unique_path">
+ <proof prover="0"><result status="timeout" time="1.00"/></proof>
+ <proof prover="1"><result status="timeout" time="1.00"/></proof>
+ <proof prover="2"><result status="timeout" time="1.00"/></proof>
+ </goal>
+ <goal name="state&#39;vc" expl="VC for state">
+ <transf name="split_vc" >
+  <goal name="state&#39;vc.0" expl="type invariant" proved="true">
+  <transf name="split_vc" proved="true" >
+   <goal name="state&#39;vc.0.0" expl="type invariant" proved="true">
+   <transf name="assert" proved="true" arg1="(n = root)">
+    <goal name="state&#39;vc.0.0.0" expl="asserted formula" proved="true">
+    <proof prover="2"><result status="valid" time="0.06"/></proof>
+    </goal>
+    <goal name="state&#39;vc.0.0.1" expl="type invariant" proved="true">
+    <transf name="assert" proved="true" arg1="(forall y. mem1 y dom -&gt; y = n)">
+     <goal name="state&#39;vc.0.0.1.0" expl="asserted formula" proved="true">
+     <proof prover="2"><result status="valid" time="0.10"/></proof>
+     </goal>
+     <goal name="state&#39;vc.0.0.1.1" expl="type invariant" proved="true">
+     <proof prover="2"><result status="valid" time="0.10"/></proof>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+  <goal name="state&#39;vc.1" expl="type invariant" proved="true">
+  <proof prover="0" obsolete="true"><result status="timeout" time="1.00"/></proof>
+  <proof prover="1" obsolete="true"><result status="timeout" time="1.00"/></proof>
+  <proof prover="2" obsolete="true"><result status="timeout" time="1.00"/></proof>
+  <transf name="split_vc" proved="true" >
+   <goal name="state&#39;vc.1.0" expl="type invariant" proved="true">
+   <proof prover="0" obsolete="true"><result status="timeout" time="1.00"/></proof>
+   <proof prover="1" obsolete="true"><result status="timeout" time="1.00"/></proof>
+   <proof prover="2"><result status="valid" time="0.09"/></proof>
+   </goal>
+   <goal name="state&#39;vc.3.0" expl="type invariant">
+   <proof prover="0"><result status="timeout" time="1.00"/></proof>
+   <proof prover="1"><result status="timeout" time="1.00"/></proof>
+   <proof prover="2"><undone/></proof>
+   </goal>
+  </transf>
+  <transf name="unfold" arg1="reachable">
+   <goal name="state&#39;vc.1.0" expl="type invariant">
+   <transf name="exists" arg1="(empty: seq elt)">
+    <goal name="state&#39;vc.3.0.0">
+    <proof prover="2"><undone/></proof>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+  <goal name="state&#39;vc.2" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.10"/></proof>
+  </goal>
+  <goal name="state&#39;vc.3" expl="type invariant">
+  <transf name="unfold" arg1="reachable">
+   <goal name="state&#39;vc.3.0" expl="type invariant">
+   <proof prover="0"><result status="timeout" time="1.00"/></proof>
+   <proof prover="1"><result status="timeout" time="1.00"/></proof>
+   <proof prover="2"><result status="timeout" time="1.00"/></proof>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="new_element" proved="true">
+ <proof prover="2"><result status="valid" time="0.45"/></proof>
+ </goal>
+ <goal name="add&#39;vc" expl="VC for add">
+ <transf name="split_vc" >
+  <goal name="add&#39;vc.0" expl="type invariant" proved="true">
+  <transf name="split_vc" proved="true" >
+   <goal name="add&#39;vc.0.0" expl="type invariant" proved="true">
+   <proof prover="2"><result status="valid" time="0.09"/></proof>
+   </goal>
+  </transf>
+  </goal>
+  <goal name="add&#39;vc.1" expl="type invariant" proved="true">
+  <transf name="assert" proved="true" arg1="(reachable (tree s1) p (root s1))">
+   <goal name="add&#39;vc.1.0" expl="asserted formula" proved="true">
+   <proof prover="2"><result status="valid" time="0.12"/></proof>
+   </goal>
+   <goal name="add&#39;vc.1.1" expl="type invariant" proved="true">
+   <transf name="unfold" proved="true" arg1="reachable" arg2="in" arg3="h">
+    <goal name="add&#39;vc.1.1.0" expl="type invariant" proved="true">
+    <transf name="introduce_exists" proved="true" >
+     <goal name="add&#39;vc.1.1.0.0" expl="type invariant" proved="true">
+     <proof prover="2"><result status="valid" time="0.08"/></proof>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+  <goal name="add&#39;vc.2" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.14"/></proof>
+  </goal>
+  <goal name="add&#39;vc.3" expl="type invariant">
+  <proof prover="0"><result status="timeout" time="1.00"/></proof>
+  <proof prover="1"><result status="timeout" time="1.00"/></proof>
+  <proof prover="2"><result status="timeout" time="1.00"/></proof>
+  <transf name="case" arg1="(x = n)">
+   <goal name="add&#39;vc.3.0" expl="true case (type invariant)">
+   <proof prover="0"><result status="timeout" time="1.00"/></proof>
+   <proof prover="1"><result status="highfailure" time="0.65"/></proof>
+   <proof prover="2"><result status="timeout" time="1.00"/></proof>
+   <transf name="unfold" arg1="reachable">
+    <goal name="add&#39;vc.3.0.0" expl="true case (type invariant)">
+    <proof prover="0"><result status="timeout" time="1.00"/></proof>
+    <proof prover="1"><result status="timeout" time="1.00"/></proof>
+    <proof prover="2"><result status="timeout" time="1.00"/></proof>
+    <transf name="split_vc" >
+     <goal name="add&#39;vc.3.0.0.0" expl="VC for add">
+     <proof prover="0"><result status="timeout" time="1.00"/></proof>
+     <proof prover="1"><result status="timeout" time="1.00"/></proof>
+     <proof prover="2"><result status="timeout" time="1.00"/></proof>
+     </goal>
+     <goal name="add&#39;vc.3.0.0.1" expl="VC for add" proved="true">
+     <proof prover="2"><result status="valid" time="0.13"/></proof>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+   <goal name="add&#39;vc.3.1" expl="false case (type invariant)">
+   <proof prover="0"><result status="timeout" time="1.00"/></proof>
+   <proof prover="1"><result status="highfailure" time="0.77"/></proof>
+   <proof prover="2"><result status="timeout" time="1.00"/></proof>
+   </goal>
+  </transf>
+  </goal>
+  <goal name="add&#39;vc.4" expl="postcondition" proved="true">
+  <proof prover="2"><result status="valid" time="0.04"/></proof>
+  </goal>
+  <goal name="add&#39;vc.5" expl="postcondition" proved="true">
+  <proof prover="2"><result status="valid" time="0.10"/></proof>
+  </goal>
+  <goal name="add&#39;vc.6" expl="postcondition" proved="true">
+  <proof prover="2"><result status="valid" time="0.04"/></proof>
+  </goal>
+ </transf>
  </goal>
 </theory>
 </file>
