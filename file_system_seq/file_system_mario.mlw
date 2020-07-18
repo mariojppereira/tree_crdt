@@ -73,7 +73,7 @@ module FileSystem
   } invariant { F.mem root dom }
     invariant { tree root = root }
     invariant { forall x. F.mem x dom -> F.mem (tree x) dom }
-    invariant { forall x. F.mem x dom <-> reachable tree x root }
+    invariant { forall x. F.mem x dom -> reachable tree x root }
     (* invariant { forall x y. F.mem x dom -> F.mem y dom ->  *)
     by { tree = (fun _ -> n); root = n; dom = F.singleton n }
 

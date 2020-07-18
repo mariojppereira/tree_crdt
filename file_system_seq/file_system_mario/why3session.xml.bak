@@ -17,10 +17,15 @@
  <goal name="path_edge_snoc" proved="true">
  <proof prover="2"><result status="valid" time="0.14"/></proof>
  </goal>
- <goal name="unique_path">
+ <goal name="unique_path_ext">
  <proof prover="0"><result status="timeout" time="1.00"/></proof>
- <proof prover="1"><result status="timeout" time="1.00"/></proof>
+ <proof prover="1"><result status="highfailure" time="0.67"/></proof>
  <proof prover="2"><result status="timeout" time="1.00"/></proof>
+ </goal>
+ <goal name="unique_path" proved="true">
+ <proof prover="0" obsolete="true"><result status="timeout" time="1.00"/></proof>
+ <proof prover="1" obsolete="true"><result status="timeout" time="1.00"/></proof>
+ <proof prover="2"><result status="valid" time="0.12"/></proof>
  </goal>
  <goal name="state&#39;vc" expl="VC for state">
  <transf name="split_vc" >
@@ -119,36 +124,87 @@
   <proof prover="2"><result status="valid" time="0.14"/></proof>
   </goal>
   <goal name="add&#39;vc.3" expl="type invariant">
-  <proof prover="0"><result status="timeout" time="1.00"/></proof>
-  <proof prover="1"><result status="timeout" time="1.00"/></proof>
-  <proof prover="2"><result status="timeout" time="1.00"/></proof>
   <transf name="case" arg1="(x = n)">
-   <goal name="add&#39;vc.3.0" expl="true case (type invariant)">
-   <proof prover="0"><result status="timeout" time="1.00"/></proof>
-   <proof prover="1"><result status="highfailure" time="0.65"/></proof>
-   <proof prover="2"><result status="timeout" time="1.00"/></proof>
-   <transf name="unfold" arg1="reachable">
-    <goal name="add&#39;vc.3.0.0" expl="true case (type invariant)">
-    <proof prover="0"><result status="timeout" time="1.00"/></proof>
-    <proof prover="1"><result status="timeout" time="1.00"/></proof>
-    <proof prover="2"><result status="timeout" time="1.00"/></proof>
-    <transf name="split_vc" >
-     <goal name="add&#39;vc.3.0.0.0" expl="VC for add">
-     <proof prover="0"><result status="timeout" time="1.00"/></proof>
-     <proof prover="1"><result status="timeout" time="1.00"/></proof>
-     <proof prover="2"><result status="timeout" time="1.00"/></proof>
-     </goal>
-     <goal name="add&#39;vc.3.0.0.1" expl="VC for add" proved="true">
-     <proof prover="2"><result status="valid" time="0.13"/></proof>
+   <goal name="add&#39;vc.3.0" expl="true case (type invariant)" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="add&#39;vc.3.0.0" expl="VC for add" proved="true">
+    <transf name="unfold" proved="true" arg1="reachable">
+     <goal name="add&#39;vc.3.0.0.0" expl="VC for add" proved="true">
+     <transf name="assert" proved="true" arg1="(reachable (tree s1) p (root s1))">
+      <goal name="add&#39;vc.3.0.0.0.0" expl="asserted formula" proved="true">
+      <proof prover="2"><result status="valid" time="0.13"/></proof>
+      </goal>
+      <goal name="add&#39;vc.3.0.0.0.1" expl="VC for add" proved="true">
+      <transf name="unfold" proved="true" arg1="reachable" arg2="in" arg3="h">
+       <goal name="add&#39;vc.3.0.0.0.1.0" expl="VC for add" proved="true">
+       <transf name="introduce_exists" proved="true" >
+        <goal name="add&#39;vc.3.0.0.0.1.0.0" expl="VC for add" proved="true">
+        <transf name="exists" proved="true" arg1="(cons x p)">
+         <goal name="add&#39;vc.3.0.0.0.1.0.0.0" proved="true">
+         <transf name="unfold" proved="true" arg1="path">
+          <goal name="add&#39;vc.3.0.0.0.1.0.0.0.0" proved="true">
+          <transf name="split_vc" proved="true" >
+           <goal name="add&#39;vc.3.0.0.0.1.0.0.0.0.0" proved="true">
+           <transf name="right" proved="true" >
+            <goal name="add&#39;vc.3.0.0.0.1.0.0.0.0.0.0" expl="right case" proved="true">
+            <transf name="split_vc" proved="true" >
+             <goal name="add&#39;vc.3.0.0.0.1.0.0.0.0.0.0.0" expl="right case" proved="true">
+             <proof prover="2"><result status="valid" time="0.16"/></proof>
+             </goal>
+             <goal name="add&#39;vc.3.0.0.0.1.0.0.0.0.0.0.1" expl="right case" proved="true">
+             <proof prover="2"><result status="valid" time="0.13"/></proof>
+             </goal>
+             <goal name="add&#39;vc.3.0.0.0.1.0.0.0.0.0.0.2" expl="right case" proved="true">
+             <proof prover="0"><result status="valid" time="0.08" steps="425"/></proof>
+             </goal>
+             <goal name="add&#39;vc.3.0.0.0.1.0.0.0.0.0.0.3" expl="right case" proved="true">
+             <proof prover="0"><result status="valid" time="0.11" steps="419"/></proof>
+             </goal>
+             <goal name="add&#39;vc.3.0.0.0.1.0.0.0.0.0.0.4" expl="right case" proved="true">
+             <proof prover="2"><result status="valid" time="0.39"/></proof>
+             </goal>
+             <goal name="add&#39;vc.3.0.0.0.1.0.0.0.0.0.0.5" expl="right case" proved="true">
+             <proof prover="2"><result status="valid" time="0.19"/></proof>
+             </goal>
+            </transf>
+            </goal>
+           </transf>
+           </goal>
+          </transf>
+          </goal>
+         </transf>
+         </goal>
+        </transf>
+        </goal>
+       </transf>
+       </goal>
+      </transf>
+      </goal>
+     </transf>
      </goal>
     </transf>
+    </goal>
+    <goal name="add&#39;vc.3.0.1" expl="VC for add" proved="true">
+    <proof prover="2"><result status="valid" time="0.12"/></proof>
     </goal>
    </transf>
    </goal>
    <goal name="add&#39;vc.3.1" expl="false case (type invariant)">
    <proof prover="0"><result status="timeout" time="1.00"/></proof>
-   <proof prover="1"><result status="highfailure" time="0.77"/></proof>
+   <proof prover="1"><result status="timeout" time="1.00"/></proof>
    <proof prover="2"><result status="timeout" time="1.00"/></proof>
+   <transf name="split_vc" >
+    <goal name="add&#39;vc.3.1.0" expl="VC for add">
+    <proof prover="0"><result status="timeout" time="1.00"/></proof>
+    <proof prover="1"><result status="timeout" time="1.00"/></proof>
+    <proof prover="2"><result status="timeout" time="1.00"/></proof>
+    </goal>
+    <goal name="add&#39;vc.3.1.1" expl="VC for add">
+    <proof prover="0"><result status="timeout" time="1.00"/></proof>
+    <proof prover="1"><result status="timeout" time="1.00"/></proof>
+    <proof prover="2"><result status="timeout" time="1.00"/></proof>
+    </goal>
+   </transf>
    </goal>
   </transf>
   </goal>
