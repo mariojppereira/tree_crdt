@@ -1,0 +1,176 @@
+module FileSystem
+
+use list.Append as A
+use list.List as L
+use list.Length as Le
+use list.Distinct as Ld
+use list.Mem as Lm
+use set.Fset as F
+use map.Map as M
+use seq.Seq as S
+use seq.Mem as Sm
+use seq.Distinct as Sd
+
+(* Arbitrary type for a node of our tree *)
+type elt
+
+(* Verifies if two nodes are equal *)
+val equal (e1 e2 : elt) : bool
+  ensures { result <-> e1 = e2 }
+
+val list_mem (x : elt) (l: S.seq elt) : bool
+  ensures { Sm.mem x l }
+
+(* Indicates if two nodes make an edge in our tree *)
+predicate edge (x y : elt) (f : elt -> elt) =
+    f x = y
+
+(* Inductive predicate to verify if there is a path from x to y *)
+inductive path (f : elt -> elt) (x y : elt) (p : S.seq elt) =
+  | path_nil   : forall x : elt, l : elt -> elt. path l x x (S.empty)
+  | path_cons  : forall x y z : elt,
+                 l : (elt -> elt),
+                 p : S.seq elt.
+                 edge x z l -> path l z y p -> Sd.distinct (S.cons x p) ->
+                 path l x y (S.cons x p)
+
+(* This lemma states that if there is a path from x to y
+   and if there is a path from y to z then there is a path
+   from x to z *)
+let rec lemma trans_path (x y z : elt) (f : elt -> elt) (p1 p2 : S.seq elt)
+    variant  { S.length p1 }
+    requires { path f x y p1 }
+    requires { path f y z p2 }
+    requires { Sd.distinct (S.(++) p1 p2) }
+    ensures  { path f x z (S.(++) p1 p2) }
+  = match p1 with
+    | S.cons _ (S.cons b _ as p') -> trans_path b y z f p' p2
+    | _                           -> ()
+    end
+
+(* This lemma states that if there is an edge from x to y
+   then that is a path from x to y *)
+lemma path_edge : forall x y : elt, f : elt -> elt.
+    edge x y f -> path f x y (S.cons x S.empty)
+
+(* This lemma states that if there is a path from n to x
+   and there is an edge from x to y then there is a path from
+   n to y *)
+lemma path_edge_cons:
+    forall n x y : elt, f : elt -> elt, pth : S.seq elt.
+    Sd.distinct (S.cons x pth) ->
+    path f n x pth -> edge x y f ->
+    path f n y (S.(++) pth (S.cons x S.empty))
+
+(* Checks if y is reachable from x *)
+predicate reachable (f: elt -> elt) (x y : elt) =
+    exists p : S.seq elt. Sd.distinct p /\
+                           path f x y p
+
+constant n    : elt (* constant only used for the state witness *)
+constant null : elt (* null constant if necessary *)
+
+type state = {
+  mutable tree : elt -> elt;      (* mapping of the tree son -> parent *)
+  mutable root : elt;             (* root of the tree *)
+  mutable dom  : F.fset elt;        (* domain of the tree mapping function *)
+}
+  invariant { F.mem root dom }
+  invariant { tree root = root }
+  invariant { forall x. F.mem x dom ->
+                F.mem (tree x) dom }
+  invariant { forall x. F.mem x dom ->
+                reachable tree x root }
+  by { tree = (fun _ -> n); root = n; dom = F.singleton n }
+
+let rec lemma aux (n w p : elt) (s: state) (l: S.seq elt)
+  requires { path s.tree w s.root l }
+  requires { not (Sm.mem n l) }
+  requires { F.mem w s.dom }
+  requires { F.mem p s.dom }
+  requires { not (F.mem n s.dom) }
+  requires { w <> n }
+  requires { n <> p }
+  ensures  { path (M.set s.tree n p) w s.root l }
+= match l with
+  | L.Nil                       -> ()
+  | L.Cons _ L.Nil              -> ()
+  | L.Cons w1 (L.Cons z _ as l) -> aux n z p s l
+  end
+
+let rec lemma test (x y : elt) (f : elt -> elt) (pth : S.seq elt)
+  requires { pth <> L.Nil }
+  requires { path f x y pth }
+  requires { Sd.distinct (S.cons y pth) }
+  variant  { S.length pth }
+  ensures  { x <> y }
+=
+  match pth with
+  | L.Nil -> ()
+  | L.Cons x1 L.Nil -> ()
+  | L.Cons x1 (L.Cons y1 tl) ->
+      match tl with
+      | L.Nil -> ()
+      | _ -> test y1 y f (L.Cons y1 tl)
+      end
+  end
+
+let rec lemma parent_move (x c np : elt) (f : elt -> elt) (pth : S.seq elt)
+  requires { x <> np }
+  requires { c <> np }
+  requires { not (reachable f np c) }
+  requires { path f x c pth }
+  requires { Sd.distinct (S.cons c pth) }
+  variant  { S.length pth }
+  ensures  { path (M.set f c np) x c pth }
+= match pth with
+  | L.Nil -> assert { x = c }
+  | L.Cons y L.Nil -> assert { y = x }; if y = c then absurd else ()
+  | L.Cons x2 (L.Cons y tl) ->
+      assert { x2 = x };
+      if x2 = c then absurd;
+      parent_move y c np f (L.Cons y tl);
+  end
+
+let ghost add (n p : elt) (s : state) : unit
+  requires { not F.mem n s.dom }
+  requires { F.mem p s.dom }
+  requires { p <> s.root /\ n <> s.root }
+  requires { forall x. F.mem x s.dom ->
+               not (reachable s.tree x n)}
+  writes   { s.tree , s.dom }
+  ensures  { s.tree = M.set (old s.tree) n p }
+  ensures  { edge n p s.tree }
+  ensures  { s.dom = F.add n (old s).dom }
+=
+  s.tree <- M.set s.tree n p;
+  s.dom  <- F.add n s.dom
+
+let ghost remove (n p : elt) (s : state) : unit
+  requires { F.mem n s.dom }
+  requires { edge n p s.tree }
+  requires { forall x. s.tree x <> n }
+  requires { n <> s.root }
+  writes   { s.dom }
+  ensures  { s.dom = F.remove n (old s).dom }
+=
+  s.dom <- F.remove n s.dom
+
+let ghost move (p c np : elt) (s : state) : unit
+  requires { F.mem p s.dom }
+  requires { F.mem np s.dom }
+  requires { F.mem c s.dom }
+  requires { edge c p s.tree }
+  requires { not (reachable s.tree np c) }
+  requires { not (reachable s.tree p c) }
+  requires { forall x. reachable s.tree x c ->
+              not (reachable s.tree np x) }
+  requires { p <> np }
+  requires { c <> np /\ c <> p }
+  writes   { s.tree }
+  ensures  { edge c np s.tree }
+  ensures  { s.tree = M.set (old s.tree) c np }
+=
+  s.tree <- M.set s.tree c np;
+
+end
