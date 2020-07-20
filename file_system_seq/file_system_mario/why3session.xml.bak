@@ -6,6 +6,7 @@
 <prover id="1" name="Z3" version="4.8.6" timelimit="1" steplimit="0" memlimit="1000"/>
 <prover id="2" name="CVC4" version="1.7" timelimit="1" steplimit="0" memlimit="1000"/>
 <prover id="3" name="Eprover" version="2.0" timelimit="5" steplimit="0" memlimit="1000"/>
+<prover id="4" name="Alt-Ergo" version="2.3.0" timelimit="5" steplimit="0" memlimit="1000"/>
 <file format="whyml">
 <path name=".."/><path name="file_system_mario.mlw"/>
 <theory name="FileSystem">
@@ -76,8 +77,8 @@
  <goal name="new_element" proved="true">
  <proof prover="2"><result status="valid" time="0.45"/></proof>
  </goal>
- <goal name="add&#39;vc" expl="VC for add">
- <transf name="split_vc" >
+ <goal name="add&#39;vc" expl="VC for add" proved="true">
+ <transf name="split_vc" proved="true" >
   <goal name="add&#39;vc.0" expl="type invariant" proved="true">
   <transf name="assert" proved="true" arg1="(reachable (tree s1) p (root s1))">
    <goal name="add&#39;vc.0.0" expl="asserted formula" proved="true">
@@ -102,13 +103,10 @@
   <goal name="add&#39;vc.2" expl="type invariant" proved="true">
   <proof prover="2"><result status="valid" time="0.14"/></proof>
   </goal>
-  <goal name="add&#39;vc.3" expl="type invariant">
-  <transf name="split_vc" >
-   <goal name="add&#39;vc.3.0" expl="type invariant">
-   <proof prover="0"><result status="timeout" time="1.00"/></proof>
-   <proof prover="1"><result status="timeout" time="1.00"/></proof>
-   <proof prover="2"><result status="timeout" time="1.00"/></proof>
-   <transf name="case" arg1="(x = n)">
+  <goal name="add&#39;vc.3" expl="type invariant" proved="true">
+  <transf name="split_vc" proved="true" >
+   <goal name="add&#39;vc.3.0" expl="type invariant" proved="true">
+   <transf name="case" proved="true" arg1="(x = n)">
     <goal name="add&#39;vc.3.0.0" expl="true case (type invariant)" proved="true">
     <transf name="unfold" proved="true" arg1="reachable">
      <goal name="add&#39;vc.3.0.0.0" expl="VC for add" proved="true">
@@ -166,10 +164,32 @@
      </goal>
     </transf>
     </goal>
-    <goal name="add&#39;vc.3.0.1" expl="false case (type invariant)">
-    <proof prover="0"><result status="timeout" time="1.00"/></proof>
-    <proof prover="1"><result status="highfailure" time="0.74"/></proof>
-    <proof prover="2"><result status="timeout" time="1.00"/></proof>
+    <goal name="add&#39;vc.3.0.1" expl="false case (type invariant)" proved="true">
+    <transf name="assert" proved="true" arg1="(reachable (tree s1) x (root s1))">
+     <goal name="add&#39;vc.3.0.1.0" expl="asserted formula" proved="true">
+     <proof prover="2"><result status="valid" time="0.13"/></proof>
+     </goal>
+     <goal name="add&#39;vc.3.0.1.1" expl="false case (type invariant)" proved="true">
+     <transf name="unfold" proved="true" arg1="reachable" arg2="in" arg3="h">
+      <goal name="add&#39;vc.3.0.1.1.0" expl="false case (type invariant)" proved="true">
+      <transf name="introduce_exists" proved="true" >
+       <goal name="add&#39;vc.3.0.1.1.0.0" expl="false case (type invariant)" proved="true">
+       <transf name="unfold" proved="true" arg1="reachable">
+        <goal name="add&#39;vc.3.0.1.1.0.0.0" expl="VC for add" proved="true">
+        <transf name="exists" proved="true" arg1="p">
+         <goal name="add&#39;vc.3.0.1.1.0.0.0.0" proved="true">
+         <proof prover="2"><result status="valid" time="0.12"/></proof>
+         <proof prover="4"><result status="valid" time="0.03" steps="160"/></proof>
+         </goal>
+        </transf>
+        </goal>
+       </transf>
+       </goal>
+      </transf>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
     </goal>
    </transf>
    </goal>

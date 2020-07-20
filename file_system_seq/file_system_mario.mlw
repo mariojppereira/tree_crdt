@@ -10,6 +10,12 @@ module FileSystem
   use import set.Fset as F
   use seq.Seq, seq.Mem, seq.Distinct
 
+  lemma append_empty: forall s: seq 'a.
+    s ++ empty == s
+
+  lemma empty_length: forall s: seq 'a.
+    length s = 0 <-> s == empty
+
   (* Arbitrary type for a node of our tree *)
   type elt
 
