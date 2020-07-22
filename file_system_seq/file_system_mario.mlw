@@ -89,7 +89,12 @@ module FileSystem
     w <> n -> n <> p ->
     path (M.set s.tree n p) w s.root l
 
-  lemma move: forall x c np: elt, s: state, p: seq elt.
+  lemma parent_move: forall x c np: elt, f: elt -> elt, p: seq elt.
+    x <> np -> c <> np -> x <> c -> not (reachable f np c) ->
+    path f x c p -> distinct (cons c p) -> not (mem np p) ->
+    (path (M.set f c np) x c p)
+
+  lemma move_lemma: forall x c np: elt, s: state, p: seq elt.
     c <> np -> x <> c -> not (reachable s.tree np c) ->
     path s.tree x s.root p -> (not reachable s.tree x c) ->
     distinct p -> (path (M.set s.tree c np) x s.root p)

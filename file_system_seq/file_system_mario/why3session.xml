@@ -228,22 +228,25 @@
  <goal name="new_element" proved="true">
  <proof prover="2"><result status="valid" time="0.45"/></proof>
  </goal>
- <goal name="move">
- <proof prover="0"><result status="timeout" time="1.00"/></proof>
- <proof prover="1"><result status="highfailure" time="0.70"/></proof>
- <proof prover="2" timelimit="1"><result status="timeout" time="1.00"/></proof>
+ <goal name="parent_move" proved="true">
+ <proof prover="2" timelimit="1"><result status="valid" time="0.23"/></proof>
+ </goal>
+ <goal name="move_lemma">
+ <proof prover="0" obsolete="true"><result status="timeout" time="1.00"/></proof>
+ <proof prover="1" obsolete="true"><result status="highfailure" time="0.70"/></proof>
+ <proof prover="2" timelimit="1" obsolete="true"><result status="timeout" time="1.00"/></proof>
  <transf name="split_vc" >
-  <goal name="move.0">
-  <proof prover="0" timelimit="5"><result status="timeout" time="5.00"/></proof>
-  <proof prover="1" timelimit="5"><result status="timeout" time="5.00"/></proof>
-  <proof prover="2"><result status="timeout" time="5.00"/></proof>
+  <goal name="move_lemma.0">
+  <proof prover="0" timelimit="5" obsolete="true"><result status="timeout" time="5.00"/></proof>
+  <proof prover="1" timelimit="5" obsolete="true"><result status="timeout" time="5.00"/></proof>
+  <proof prover="2" obsolete="true"><result status="timeout" time="5.00"/></proof>
   </goal>
  </transf>
  </goal>
  <goal name="add&#39;vc" expl="VC for add" proved="true">
  <transf name="split_vc" proved="true" >
   <goal name="add&#39;vc.0" expl="type invariant" proved="true">
-  <proof prover="2"><result status="valid" time="0.09"/></proof>
+  <proof prover="2"><result status="valid" time="0.23"/></proof>
   </goal>
   <goal name="add&#39;vc.1" expl="type invariant" proved="true">
   <proof prover="2" timelimit="1"><result status="valid" time="0.10"/></proof>
@@ -284,7 +287,6 @@
              </goal>
              <goal name="add&#39;vc.3.0.0.0.1.0.0.0.0.0.0.2" expl="right case" proved="true">
              <proof prover="0"><result status="valid" time="0.16" steps="421"/></proof>
-             <proof prover="2"><result status="timeout" time="5.00"/></proof>
              </goal>
              <goal name="add&#39;vc.3.0.0.0.1.0.0.0.0.0.0.3" expl="right case" proved="true">
              <proof prover="0"><result status="valid" time="0.21" steps="411"/></proof>
@@ -371,9 +373,89 @@
   <proof prover="2" timelimit="1"><result status="valid" time="0.14"/></proof>
   </goal>
   <goal name="move&#39;vc.3" expl="type invariant">
-  <proof prover="0"><result status="timeout" time="1.00"/></proof>
-  <proof prover="1"><result status="timeout" time="1.00"/></proof>
-  <proof prover="2" timelimit="1"><result status="timeout" time="1.00"/></proof>
+  <proof prover="0" obsolete="true"><result status="timeout" time="1.00"/></proof>
+  <proof prover="1" obsolete="true"><result status="timeout" time="1.00"/></proof>
+  <proof prover="2" timelimit="1" obsolete="true"><result status="timeout" time="1.00"/></proof>
+  <transf name="case" arg1="(x = c)">
+   <goal name="move&#39;vc.3.0" expl="true case (type invariant)" proved="true">
+   <transf name="assert" proved="true" arg1="(reachable (tree s1) np (root s1))">
+    <goal name="move&#39;vc.3.0.0" expl="asserted formula" proved="true">
+    <proof prover="2" timelimit="1"><result status="valid" time="0.14"/></proof>
+    </goal>
+    <goal name="move&#39;vc.3.0.1" expl="true case (type invariant)" proved="true">
+    <transf name="unfold" proved="true" arg1="reachable" arg2="in" arg3="h">
+     <goal name="move&#39;vc.3.0.1.0" expl="true case (type invariant)" proved="true">
+     <transf name="introduce_exists" proved="true" >
+      <goal name="move&#39;vc.3.0.1.0.0" expl="true case (type invariant)" proved="true">
+      <transf name="instantiate" proved="true" arg1="trans_path" arg2="c,np">
+       <goal name="move&#39;vc.3.0.1.0.0.0" expl="true case (type invariant)" proved="true">
+       <transf name="instantiate" proved="true" arg1="Hinst" arg2="(root s1)">
+        <goal name="move&#39;vc.3.0.1.0.0.0.0" expl="true case (type invariant)" proved="true">
+        <transf name="instantiate" proved="true" arg1="Hinst" arg2="(set1 (tree s1) c np)">
+         <goal name="move&#39;vc.3.0.1.0.0.0.0.0" expl="true case (type invariant)" proved="true">
+         <transf name="instantiate" proved="true" arg1="Hinst" arg2="(singleton c)">
+          <goal name="move&#39;vc.3.0.1.0.0.0.0.0.0" expl="true case (type invariant)" proved="true">
+          <transf name="instantiate" proved="true" arg1="Hinst" arg2="p">
+           <goal name="move&#39;vc.3.0.1.0.0.0.0.0.0.0" expl="true case (type invariant)" proved="true">
+           <proof prover="2"><result status="valid" time="1.12"/></proof>
+           <transf name="remove" proved="true" arg1="zero,one,(-),(&gt;),(&lt;=),(&gt;=),get1,set1,([]&#39;),([&lt;-]&#39;),(==&#39;),subset,is_empty,singleton1,disjoint,([]),cons,snoc,(++),mem,distinct,Assoc1,Unit_def_l,Unit_def_r,Inv_def_l,Inv_def_r,Comm1,Assoc,Mul_distr_l,Mul_distr_r,Comm,Unitary,NonTrivialRing,Refl,Trans,Antisymm,Total,ZeroLessOne,CompatOrderAdd,CompatOrderMult,extensionality,subset_refl,subset_trans,is_empty_empty,empty_is_empty,add_def,mem_singleton,remove_def,add_remove,remove_add,subset_remove,union_def,subset_union_1,subset_union_2,inter_def,subset_inter_1,subset_inter_2,diff_def,subset_diff,pick_def,disjoint_inter_empty,disjoint_diff_eq,disjoint_diff_s2,filter_def,subset_filter,map_def,mem_map,cardinal_nonneg,cardinal_empty,cardinal_add,cardinal_remove,cardinal_subset,subset_eq,cardinal1,cardinal_union,cardinal_inter_disjoint,cardinal_diff,cardinal_filter,cardinal_map,length_nonnegative,(==)&#39;spec,empty&#39;def,set&#39;spec,set&#39;def,([&lt;-])&#39;def,singleton&#39;spec,cons&#39;spec,snoc&#39;spec,([..])&#39;spec,([..])&#39;def,([_..])&#39;def,([.._])&#39;def,(++)&#39;spec,mem_append,mem_tail,append_empty,empty_length,path_edge_snoc,unique_path_ext,unique_path,state&#39;invariant,new_element,parent_move,H3,Requires7,Requires6,Requires5,Requires2,Requires1,H1,LoopInvariant2,LoopInvariant,H,Hinst4,Hinst3,Hinst2,Hinst1">
+            <goal name="move&#39;vc.3.0.1.0.0.0.0.0.0.0.0" expl="true case (type invariant)" proved="true">
+            <proof prover="2" timelimit="1"><result status="valid" time="0.33"/></proof>
+            </goal>
+           </transf>
+           </goal>
+          </transf>
+          </goal>
+         </transf>
+         </goal>
+        </transf>
+        </goal>
+       </transf>
+       </goal>
+      </transf>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+   <goal name="move&#39;vc.3.1" expl="false case (type invariant)">
+   <transf name="case" arg1="(reachable (tree s1) x c)">
+    <goal name="move&#39;vc.3.1.0" expl="false case (true case. type invariant)">
+    <proof prover="0"><result status="timeout" time="1.00"/></proof>
+    <proof prover="1"><result status="timeout" time="1.00"/></proof>
+    <proof prover="2" timelimit="1"><result status="timeout" time="1.00"/></proof>
+    </goal>
+    <goal name="move&#39;vc.3.1.1" expl="false case (type invariant)" proved="true">
+    <transf name="assert" proved="true" arg1="(reachable (tree s1) x (root s1))">
+     <goal name="move&#39;vc.3.1.1.0" expl="asserted formula" proved="true">
+     <proof prover="2" timelimit="1"><result status="valid" time="0.14"/></proof>
+     </goal>
+     <goal name="move&#39;vc.3.1.1.1" expl="false case (type invariant)" proved="true">
+     <transf name="unfold" proved="true" arg1="reachable" arg2="in" arg3="h">
+      <goal name="move&#39;vc.3.1.1.1.0" expl="false case (type invariant)" proved="true">
+      <transf name="introduce_exists" proved="true" >
+       <goal name="move&#39;vc.3.1.1.1.0.0" expl="false case (type invariant)" proved="true">
+       <transf name="unfold" proved="true" arg1="reachable">
+        <goal name="move&#39;vc.3.1.1.1.0.0.0" expl="VC for move" proved="true">
+        <transf name="exists" proved="true" arg1="p">
+         <goal name="move&#39;vc.3.1.1.1.0.0.0.0" proved="true">
+         <proof prover="2" timelimit="1"><result status="valid" time="0.14"/></proof>
+         </goal>
+        </transf>
+        </goal>
+       </transf>
+       </goal>
+      </transf>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
   </goal>
   <goal name="move&#39;vc.4" expl="postcondition" proved="true">
   <proof prover="2" timelimit="1"><result status="valid" time="0.14"/></proof>
