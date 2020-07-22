@@ -80,6 +80,7 @@ module FileSystem
     invariant { tree root = root }
     invariant { forall x. F.mem x dom -> F.mem (tree x) dom }
     invariant { forall x. F.mem x dom -> reachable tree x root }
+    invariant { forall x. F.mem x dom -> reachable tree root x -> x = root }
     (* invariant { forall x y. F.mem x dom -> F.mem y dom ->  *)
     by { tree = (fun _ -> n); root = n; dom = F.singleton n }
 
@@ -98,6 +99,10 @@ module FileSystem
     c <> np -> x <> c -> not (reachable s.tree np c) ->
     path s.tree x s.root p -> (not reachable s.tree x c) ->
     distinct p -> (path (M.set s.tree c np) x s.root p)
+
+  lemma none_intermediate_reachability: forall f x c np p.
+    not (reachable f np c) -> path f x c p ->
+    not (mem np p)
 
   (* lemma not_in_path: forall n: elt, state: state. *)
   (*   not (F.mem p s.dom) -> *)
@@ -135,6 +140,7 @@ module FileSystem
     requires { not (reachable s.tree np c) }
     requires { not (reachable s.tree p c) }
     requires { forall x. reachable s.tree x c -> not (reachable s.tree np x) }
+    requires { c <> s.root }
     requires { p <> np }
     requires { c <> np /\ c <> p }
     writes   { s.tree }
