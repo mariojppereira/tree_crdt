@@ -121,21 +121,5 @@ module FileSystem
     writes   { s.dom }
     ensures  { s.dom = F.remove n (old s).dom }
   = s.dom <- F.remove n s.dom
-  
-  let ghost move (p c np : elt) (s : state) : unit
-    requires { F.mem p s.dom }
-    requires { F.mem np s.dom }
-    requires { F.mem c s.dom }
-    requires { edge c p s.tree }
-    requires { not (reachable s.tree np c) }
-    requires { not (reachable s.tree p c) }
-    requires { forall x. reachable s.tree x c ->
-              not (reachable s.tree np x) }
-    requires { p <> np }
-    requires { c <> np /\ c <> p }
-    writes   { s.tree }
-    ensures  { edge c np s.tree }
-    ensures  { s.tree = M.set (old s.tree) c np }
-  = s.tree <- M.set s.tree c np;
 
 end
