@@ -88,7 +88,7 @@ module FileSystem
     F.mem w s.dom -> F.mem p s.dom -> not (F.mem n s.dom) ->
     w <> n -> n <> p ->
     path (M.set s.tree n p) w s.root l
-    
+
   lemma move: forall x c np: elt, s: state, p: seq elt.
     c <> np -> x <> c -> not (reachable s.tree np c) ->
     path s.tree x s.root p -> (not reachable s.tree x c) ->
@@ -112,7 +112,7 @@ module FileSystem
     ensures  { s.dom = F.add n (old s).dom }
   = s.tree <- M.set s.tree n p;
     s.dom  <- F.add n s.dom
-    
+
   let ghost remove (n p : elt) (s : state) : unit
     requires { F.mem n s.dom }
     requires { edge n p s.tree }
@@ -121,7 +121,7 @@ module FileSystem
     writes   { s.dom }
     ensures  { s.dom = F.remove n (old s).dom }
   = s.dom <- F.remove n s.dom
-  
+
   let ghost move (p c np : elt) (s : state) : unit
     requires { F.mem p s.dom }
     requires { F.mem np s.dom }
@@ -129,8 +129,7 @@ module FileSystem
     requires { edge c p s.tree }
     requires { not (reachable s.tree np c) }
     requires { not (reachable s.tree p c) }
-    requires { forall x. reachable s.tree x c ->
-              not (reachable s.tree np x) }
+    requires { forall x. reachable s.tree x c -> not (reachable s.tree np x) }
     requires { p <> np }
     requires { c <> np /\ c <> p }
     writes   { s.tree }
