@@ -80,6 +80,7 @@ module FileSystem
     invariant { tree root = root }
     invariant { forall x. F.mem x dom -> F.mem (tree x) dom }
     invariant { forall x. F.mem x dom -> reachable tree x root }
+    invariant { forall x. F.mem x dom -> reachable tree root x -> x = root }
     (* invariant { forall x y. F.mem x dom -> F.mem y dom ->  *)
     by { tree = (fun _ -> n); root = n; dom = F.singleton n }
 
@@ -88,11 +89,25 @@ module FileSystem
     F.mem w s.dom -> F.mem p s.dom -> not (F.mem n s.dom) ->
     w <> n -> n <> p ->
     path (M.set s.tree n p) w s.root l
-    
-  lemma move: forall x c np: elt, s: state, p: seq elt.
+
+  lemma parent_move: forall x c np: elt, f: elt -> elt, p: seq elt.
+    x <> np -> c <> np -> x <> c -> not (reachable f np c) ->
+    path f x c p -> distinct (cons c p) -> not (mem np p) ->
+    (path (M.set f c np) x c p)
+
+  lemma move_lemma: forall x c np: elt, s: state, p: seq elt.
     c <> np -> x <> c -> not (reachable s.tree np c) ->
     path s.tree x s.root p -> (not reachable s.tree x c) ->
     distinct p -> (path (M.set s.tree c np) x s.root p)
+
+  lemma none_intermediate_reachability: forall f x c np p.
+    not (reachable f np c) -> path f x c p ->
+    not (mem np p)
+  
+   lemma up_reach: forall final initial middle : elt, 
+    f : elt -> elt, p : seq elt.
+    reachable f initial middle -> path f middle final p ->
+    not (reachable f middle initial) -> not (mem initial p) 
 
   (* lemma not_in_path: forall n: elt, state: state. *)
   (*   not (F.mem p s.dom) -> *)
@@ -112,7 +127,7 @@ module FileSystem
     ensures  { s.dom = F.add n (old s).dom }
   = s.tree <- M.set s.tree n p;
     s.dom  <- F.add n s.dom
-    
+
   let ghost remove (n p : elt) (s : state) : unit
     requires { F.mem n s.dom }
     requires { edge n p s.tree }
@@ -121,5 +136,21 @@ module FileSystem
     writes   { s.dom }
     ensures  { s.dom = F.remove n (old s).dom }
   = s.dom <- F.remove n s.dom
+
+  let ghost move (p c np : elt) (s : state) : unit
+    requires { F.mem p s.dom }
+    requires { F.mem np s.dom }
+    requires { F.mem c s.dom }
+    requires { edge c p s.tree }
+    requires { not (reachable s.tree np c) }
+    requires { not (reachable s.tree p c) }
+    requires { forall x. reachable s.tree x c -> not (reachable s.tree np x) }
+    requires { c <> s.root }
+    requires { p <> np }
+    requires { c <> np /\ c <> p }
+    writes   { s.tree }
+    ensures  { edge c np s.tree }
+    ensures  { s.tree = M.set (old s.tree) c np }
+  = s.tree <- M.set s.tree c np;
 
 end

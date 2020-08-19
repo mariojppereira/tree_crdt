@@ -103,6 +103,11 @@ module FileSystem
   lemma none_intermediate_reachability: forall f x c np p.
     not (reachable f np c) -> path f x c p ->
     not (mem np p)
+  
+   lemma up_reach: forall final initial middle : elt, 
+    f : elt -> elt, p1 p2 : seq elt.
+    path f middle final p2 -> path f initial middle p1 ->
+    disjoint_seq p1 p2
 
   (* lemma not_in_path: forall n: elt, state: state. *)
   (*   not (F.mem p s.dom) -> *)
