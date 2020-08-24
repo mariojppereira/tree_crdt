@@ -1,10 +1,5 @@
 module FileSystem
 
-  (* use list.Append as A *)
-  (* use list.List as L *)
-  (* use list.Length as Le *)
-  (* use list.Distinct as Ld *)
-  (* use list.Mem as Lm *)
   use int.Int
   use import map.Map as M
   use import set.Fset as F
