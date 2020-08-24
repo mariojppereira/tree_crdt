@@ -63,7 +63,8 @@ module FileSystem
 
   (* TO BE PROVED *)
   lemma unique_path_ext: forall x y: elt, f: elt -> elt, pth1 pth2: seq elt.
-    path f x y pth1 -> path f x y pth2 ->
+    path f x y pth1 -> path f x y pth2 -> length pth1 = length pth2 ->
+    (forall i: int. 0 <= i < length pth1 -> pth1[i] = pth2[i]) ->
     pth1 == pth2
 
   lemma unique_path: forall x y: elt, f: elt -> elt, pth1 pth2: seq elt.
@@ -104,11 +105,17 @@ module FileSystem
     not (reachable f np c) -> path f x c p ->
     not (mem np p)
   
-   lemma up_reach: forall final initial middle : elt, 
+  lemma up_reach: forall final initial middle : elt, 
     f : elt -> elt, p1 p2 : seq elt.
     path f middle final p2 -> path f initial middle p1 ->
+    final <> initial -> middle <> initial -> middle <> final ->
     disjoint_seq p1 p2
-
+    
+  (* lemma up_reach: forall final initial middle x y : elt, 
+    f : elt -> elt, p1 p2 : seq elt.
+    path f middle final p2 -> path f initial middle p1 ->
+    mem x p1 -> mem y p2 -> x <> y *)
+    
   (* lemma not_in_path: forall n: elt, state: state. *)
   (*   not (F.mem p s.dom) -> *)
   (*   forall x w: elt, p: seq elt. *)
