@@ -117,10 +117,40 @@ module FileSystem
     path f x c p -> distinct (cons c p) -> not (mem np p) ->
     (path (M.set f c np) x c p)
 
-  lemma move_lemma: forall x c np: elt, s: state, p: seq elt.
+  let lemma move_lemma_aux (x c np : elt) (s : state) (p p1 : seq elt)
+    requires { c <> np }
+    requires { x <> c }
+    requires { not (reachable s.tree np c) }
+    requires { path s.tree x s.root p }
+    requires { (not reachable s.tree x c) }
+    requires { distinct p }
+    requires { distinct p1 }
+    requires { (path (M.set s.tree c np) x s.root p1) }
+    requires { length p1 = length p }
+    ensures  { forall i. 0 <= i < length p1 -> p1[i] = p[i] }
+  = if length p1 = 0 then ()
+    else begin
+      let ref s1 = singleton p1[0] in
+      let ref s2 = singleton p[0] in
+      for i = 1 to length p1 - 1 do
+        invariant { length s1 = length s2 }
+        invariant { s1 == p1 [.. i] }
+        invariant { s2 == p [.. i] }
+        invariant { s1 == s2 }
+        assert { s1[i - 1] = s2[i - 1] };
+        s1 <- snoc s1 p1[i];
+        s2 <- snoc s2 p[i]
+      done;
+      assert { s1 == p1 };
+      assert { s2 == p };
+      assert { p1 == p }
+    end 
+  
+  lemma move_lemma: forall x c np: elt, s: state, p p1: seq elt.
     c <> np -> x <> c -> not (reachable s.tree np c) ->
     path s.tree x s.root p -> (not reachable s.tree x c) ->
-    distinct p -> (path (M.set s.tree c np) x s.root p)
+    distinct p -> distinct p1 -> (path (M.set s.tree c np) x s.root p1) ->
+    p == p1
     
   let lemma non_intermediate (x c np : elt) (f : elt -> elt) (p: seq elt)
       requires { not (reachable f np c) }
@@ -171,6 +201,7 @@ module FileSystem
     f : elt -> elt, p1 p2 : seq elt.
     path f middle final p2 -> path f initial middle p1 ->
     final <> initial -> middle <> initial -> middle <> final ->
+    (forall x. reachable f middle x -> not (mem x p1)) ->
     disjoint_seq p1 p2
 
   (* lemma up_reach: forall final initial middle x y : elt,
